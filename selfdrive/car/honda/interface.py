@@ -381,7 +381,8 @@ class CarInterface(CarInterfaceBase):
     events.events.extend(create_button_enable_events(ret.buttonEvents, self.CP.pcmCruise))
 
     for b in ret.buttonEvents:
-      # check to see if LKAS button is pressed
+      # check to see if LKAS button is pressed and acc is not enabled
+      # we will enable openpilot to allow LKAS without ACC
       if b.type == ButtonType.altButton1 and b.pressed:
         if ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonEnable)

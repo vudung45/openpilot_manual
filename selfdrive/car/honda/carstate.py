@@ -273,19 +273,24 @@ class CarState(CarStateBase):
       ret.stockAeb = bool(cp_cam.vl["BRAKE_COMMAND"]["AEB_REQ_1"] and cp_cam.vl["BRAKE_COMMAND"]["COMPUTER_BRAKE"] > 1e-5)
     
     if ret.cruiseState.available:
-      if self.prev_cruise_buttons == 3:  # SET-
-        if self.cruise_buttons != 3:
-          self.accEnabled = True
-          self.madsEnabled = True
-      elif self.prev_cruise_buttons == 4:  # RESUME+
-        if self.cruise_buttons != 4:
-          self.accEnabled = True
-          self.madsEnabled = True
+      # Enable both LKAS and ACC if SET- or SET+ is pressed
+      if self.prev_cruise_buttons == 3 and self.cruise_buttons != 3:  # SET-
+        self.accEnabled = True
+        self.lkasEnabled = True
+      if self.prev_cruise_buttons == 4 and self.cruise_buttons != 4:  # SET+
+        self.accEnabled = True
+        self.lkasEnabled = True
 
       # allow toggling LKAS independently from ACC
       if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) \
       or (self.prev_cruise_buttons != 1 and self.cruise_buttons == 1):
           self.lkasEnabled = not self.lkasEnabled
+    else:
+      self.accEnabled = False
+      self.lkasEnabled = False
+
+    if ret.brakePressed:
+      self.accEnabled = False
 
     ret.cruiseState.enabled = self.accEnabled
 
