@@ -343,7 +343,7 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c):
     ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
 
-    ret.madsEnabled = self.CS.madsEnabled
+    ret.lkasEnabled = self.CS.lkasEnabled
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
@@ -383,7 +383,7 @@ class CarInterface(CarInterfaceBase):
     for b in ret.buttonEvents:
       # check to see if LKAS button is pressed
       if b.type == ButtonType.altButton1 and b.pressed:
-        if ret.madsEnabled and not ret.cruiseState.enabled:
+        if ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonEnable)
 
     self.CP.latActive = True if self.CC.lat_active else False

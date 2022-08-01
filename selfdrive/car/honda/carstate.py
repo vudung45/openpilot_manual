@@ -149,6 +149,8 @@ class CarState(CarStateBase):
     self.brake_switch_active = False
     self.cruise_setting = 0
     self.v_cruise_pcm_prev = 0
+    self.lkasEnabled = False
+    self.accEnabled = False
 
   def update(self, cp, cp_cam, cp_body):
     ret = car.CarState.new_message()
@@ -271,12 +273,23 @@ class CarState(CarStateBase):
       ret.stockAeb = bool(cp_cam.vl["BRAKE_COMMAND"]["AEB_REQ_1"] and cp_cam.vl["BRAKE_COMMAND"]["COMPUTER_BRAKE"] > 1e-5)
     
     if ret.cruiseState.available:
+      if self.prev_cruise_buttons == 3:  # SET-
+        if self.cruise_buttons != 3:
+          self.accEnabled = True
+          self.madsEnabled = True
+      elif self.prev_cruise_buttons == 4:  # RESUME+
+        if self.cruise_buttons != 4:
+          self.accEnabled = True
+          self.madsEnabled = True
+
       # allow toggling LKAS independently from ACC
       if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) \
       or (self.prev_cruise_buttons != 1 and self.cruise_buttons == 1):
-          self.madsEnabled = not self.madsEnabled
+          self.lkasEnabled = not self.lkasEnabled
 
-    if self.madsEnabled:
+    ret.cruiseState.enabled = self.accEnabled
+
+    if self.lkasEnabled:
       steer_status = self.steer_status_values[cp.vl["STEER_STATUS"]["STEER_STATUS"]]
       ret.steerFaultPermanent = steer_status not in ("NORMAL", "NO_TORQUE_ALERT_1", "NO_TORQUE_ALERT_2", "LOW_SPEED_LOCKOUT", "TMP_FAULT")
       # LOW_SPEED_LOCKOUT is not worth a warning
