@@ -149,9 +149,7 @@ class CarState(CarStateBase):
     self.brake_switch_active = False
     self.cruise_setting = 0
     self.v_cruise_pcm_prev = 0
-    self.madsEnabled = False
-    self.accEnabled = False
-  
+
   def update(self, cp, cp_cam, cp_body):
     ret = car.CarState.new_message()
 
@@ -273,41 +271,10 @@ class CarState(CarStateBase):
       ret.stockAeb = bool(cp_cam.vl["BRAKE_COMMAND"]["AEB_REQ_1"] and cp_cam.vl["BRAKE_COMMAND"]["COMPUTER_BRAKE"] > 1e-5)
     
     if ret.cruiseState.available:
-      if not self.CP.pcmCruise:
-        if self.prev_cruise_buttons == 3:  # SET-
-          if self.cruise_buttons != 3:
-            self.accEnabled = True
-            self.madsEnabled = True
-        elif self.prev_cruise_buttons == 4:  # RESUME+
-          if self.cruise_buttons != 4:
-            self.accEnabled = True
-            self.madsEnabled = True
-      if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) or (self.prev_cruise_buttons != 1 and self.cruise_buttons == 1):
+      # allow toggling LKAS independently from ACC
+      if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) \
+      or (self.prev_cruise_buttons != 1 and self.cruise_buttons == 1):
           self.madsEnabled = not self.madsEnabled
-    else:
-      self.madsEnabled = False
-      self.accEnabled = False
-
-    if not self.CP.pcmCruise or (self.CP.pcmCruise and self.CP.minEnableSpeed > 0):
-      if self.prev_cruise_buttons != 2:  # CANCEL
-        if self.cruise_buttons == 2:
-          self.accEnabled = False
-          self.madsEnabled = False
-      if ret.brakePressed:
-        self.accEnabled = False
-        self.madsEnabled = False
-    
-    if self.CP.pcmCruise and self.CP.minEnableSpeed > 0:
-      if ret.gasPressed and not ret.cruiseState.enabled:
-        self.accEnabled = False
-      self.accEnabled = ret.cruiseState.enabled or self.accEnabled
-
-    if not self.CP.pcmCruise:
-      ret.cruiseState.enabled = self.accEnabled
-
-
-    ret.steerFaultPermanent = False
-    ret.steerFaultTemporary = False
 
     if self.madsEnabled:
       steer_status = self.steer_status_values[cp.vl["STEER_STATUS"]["STEER_STATUS"]]
@@ -315,8 +282,6 @@ class CarState(CarStateBase):
       # LOW_SPEED_LOCKOUT is not worth a warning
       # NO_TORQUE_ALERT_2 can be caused by bump or steering nudge from driver
       ret.steerFaultTemporary = steer_status not in ("NORMAL", "LOW_SPEED_LOCKOUT", "NO_TORQUE_ALERT_2")
-
-    ret.latActive = self.CP.latActive
 
     self.stock_hud = False
     if self.CP.carFingerprint not in HONDA_BOSCH:
@@ -379,4 +344,3 @@ class CarState(CarStateBase):
       bus_body = 0 # B-CAN is forwarded to ACC-CAN radar side (CAN 0 on fake ethernet port)
       return CANParser(DBC[CP.carFingerprint]["body"], signals, checks, bus_body)
     return None
-
