@@ -157,8 +157,7 @@ class CarController:
 
     # Send steering command.
     idx = self.frame % 4
-    if CC.latActive:
-      can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
+    can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
                                                           idx, CS.CP.openpilotLongitudinalControl))
 
     # wind brake from air resistance decel at high speed
