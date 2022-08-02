@@ -203,7 +203,7 @@ class CarInterfaceBase(ABC):
       events.add(EventName.parkBrake)
     if cs_out.accFaulted:
       events.add(EventName.accFaulted)
-    if ret.brakePressed:
+    if cs_out.brakePressed:
       events.add(EventName.buttonCancel)
 
     # Handle permanent and temporary steering faults
