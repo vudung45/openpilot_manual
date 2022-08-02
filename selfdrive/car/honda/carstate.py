@@ -301,6 +301,7 @@ class CarState(CarStateBase):
 
     self.prev_brake_pressed = ret.brakePressed
     ret.cruiseState.enabled = self.accEnabled
+    ret.lkasEnabled = self.CS.lkasEnabled
 
     if self.lkasEnabled:
       steer_status = self.steer_status_values[cp.vl["STEER_STATUS"]["STEER_STATUS"]]
