@@ -231,7 +231,8 @@ class CarInterfaceBase(ABC):
       elif not cs_out.cruiseState.enabled:
         events.add(EventName.pcmDisable)
 
-    if cs_out.disengagedByBrake and not cs_out.brakePressed and not cs_out.brakeHoldActive:
+    if cs_out.disengagedByBrake and not cs_out.brakePressed \
+          and not cs_out.brakeHoldActive and not cs_out.parkingBrake and allow_enable:
       events.add(EventName.buttonEnable)
       cs_out.disengagedByBrake = False
 
