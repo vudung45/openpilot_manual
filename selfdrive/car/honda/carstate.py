@@ -286,6 +286,7 @@ class CarState(CarStateBase):
         if self.cruise_buttons == 2:
           self.accEnabled = False
           self.lkasEnabled = False
+          ret.disengagedByBrake = False
 
       # allow toggling LKAS independently from ACC
       if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) \
@@ -297,6 +298,7 @@ class CarState(CarStateBase):
 
     if ret.brakePressed:
       self.accEnabled = False
+      ret.disengagedByBrake = True
 
     self.prev_brake_pressed = ret.brakePressed
     ret.cruiseState.enabled = self.accEnabled
