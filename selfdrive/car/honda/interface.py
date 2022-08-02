@@ -388,7 +388,7 @@ class CarInterface(CarInterfaceBase):
         if not ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonCancel)
 
-    if ret.brakePressed and not self.CS.prev_brake_pressed:
+    if not self.CS.prev_brake_pressed and ret.brakePressed:
       events.add(EventName.buttonCancel)
 
     ret.events = events.to_msg()
