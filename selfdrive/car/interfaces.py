@@ -232,7 +232,7 @@ class CarInterfaceBase(ABC):
         events.add(EventName.pcmDisable)
 
     if cs_out.disengagedByBrake and not cs_out.brakePressed \
-          and not cs_out.brakeHoldActive and not cs_out.parkingBrake and allow_enable:
+          and not cs_out.brakeHoldActive and not cs_out.parkingBrake and cs_out.lkasEnable and allow_enable:
       events.add(EventName.buttonEnable)
       cs_out.disengagedByBrake = False
 
