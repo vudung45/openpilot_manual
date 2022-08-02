@@ -200,8 +200,8 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
-  madsEnabled @44 :Bool;
-  latActive @45 :Bool;
+  lkasEnabled @44 :Bool;
+  disengagedByBrake @45 :Bool;
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
 
@@ -476,7 +476,6 @@ struct CarParams {
   radarTimeStep @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
   fingerprintSource @49: FingerprintSource;
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
-  latActive @69 :Bool;
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 
   struct SafetyConfig {

@@ -462,7 +462,7 @@ class Controls:
     else:
       if CS.cruiseState.available:  
         self.v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
-        self.v_cruise_cluster_kph  = CS.cruiseState.speedCluster * CV.MS_TO_KPH
+        # self.v_cruise_cluster_kph  = CS.cruiseState.speedCluster * CV.MS_TO_KPH
       else:
         self.v_cruise_kph = 0
         self.v_cruise_cluster_kph = 0
@@ -572,7 +572,7 @@ class Controls:
     CC.enabled = self.enabled
     # Check which actuators can be enabled
     CC.latActive = self.active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                     CS.vEgo > self.CP.minSteerSpeed and not CS.standstill and CS.madsEnabled and \
+                     CS.vEgo > self.CP.minSteerSpeed and not CS.standstill and CS.lkasEnabled and \
                      not CS.brakePressed and not self.events.any(ET.NO_ENTRY)
     CC.longActive = self.active and CS.cruiseState.enabled and not CS.brakePressed and not self.events.any(ET.OVERRIDE) and self.CP.openpilotLongitudinalControl
 
@@ -621,14 +621,14 @@ class Controls:
 
     # Send a "steering required alert" if saturation count has reached the limit
     if lac_log.active and not CS.steeringPressed and self.CP.lateralTuning.which() == 'torque' and not self.joystick_mode and \
-    CS.madsEnabled and not (CS.leftBlinker or CS.rightBlinker):
+    CS.lkasEnabled and not (CS.leftBlinker or CS.rightBlinker):
       undershooting = abs(lac_log.desiredLateralAccel) / abs(1e-3 + lac_log.actualLateralAccel) > 1.2
       turning = abs(lac_log.desiredLateralAccel) > 1.0
       good_speed = CS.vEgo > 5
       max_torque = abs(self.last_actuators.steer) > 0.99
       if undershooting and turning and good_speed and max_torque:
         self.events.add(EventName.steerSaturated)
-    elif lac_log.active and not CS.steeringPressed and lac_log.saturated and CS.madsEnabled and \
+    elif lac_log.active and not CS.steeringPressed and lac_log.saturated and CS.lkasEnabled and \
     not (CS.leftBlinker or CS.rightBlinker):
       dpath_points = lat_plan.dPathPoints
       if len(dpath_points):

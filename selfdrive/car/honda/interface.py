@@ -332,118 +332,68 @@ class CarInterface(CarInterfaceBase):
 
     ret.steerActuatorDelay = 0.1
     ret.steerLimitTimer = 0.8
-    ret.latActive = False
     return ret
 
   @staticmethod
   def init(CP, logcan, sendcan):
     if CP.carFingerprint in (HONDA_BOSCH - HONDA_BOSCH_RADARLESS) and CP.openpilotLongitudinalControl:
       disable_ecu(logcan, sendcan, bus=1, addr=0x18DAB0F1, com_cont_req=b'\x28\x83\x03')
-
-  # returns a car.CarState
+  
   def _update(self, c):
     ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
-    
-    ret.madsEnabled = self.CS.madsEnabled
-    print("Update mads: " + str(ret.madsEnabled))
+
+    ret.disengagedByBrake = ret.disengagedByBrake or self.CS.out.disengagedByBrake
+
     buttonEvents = []
 
-    if ret.cruiseState.enabled and not self.CS.out.cruiseState.enabled:
-      be = car.CarState.ButtonEvent.new_message()
-      be.pressed = False
-      be.type = ButtonType.setCruise
-      buttonEvents.append(be)
-
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
-      be = car.CarState.ButtonEvent.new_message()
-      be.type = ButtonType.unknown
-      if self.CS.cruise_buttons != 0:
-        be.pressed = True
-        but = self.CS.cruise_buttons
-      else:
-        be.pressed = False
-        but = self.CS.prev_cruise_buttons
-      if but == CruiseButtons.RES_ACCEL:
-        be.type = ButtonType.accelCruise
-      elif but == CruiseButtons.DECEL_SET:
-        be.type = ButtonType.decelCruise
-      elif but == CruiseButtons.CANCEL:
-        be.type = ButtonType.cancel
-      elif but == CruiseButtons.MAIN:
-        be.type = ButtonType.altButton3
-      buttonEvents.append(be)
+      buttonEvents.append(create_button_event(self.CS.cruise_buttons, self.CS.prev_cruise_buttons, BUTTONS_DICT))
 
     if self.CS.cruise_setting != self.CS.prev_cruise_setting:
-      be = car.CarState.ButtonEvent.new_message()
-      be.type = ButtonType.unknown
-      if self.CS.cruise_setting != 0:
-        be.pressed = True
-        but = self.CS.cruise_setting
-      else:
-        be.pressed = False
-        but = self.CS.prev_cruise_setting
-      if but == 1:
-        be.type = ButtonType.altButton1
-      # TODO: more buttons?
-      buttonEvents.append(be)
+      buttonEvents.append(create_button_event(self.CS.cruise_setting, self.CS.prev_cruise_setting, {1: ButtonType.altButton1}))
+
     ret.buttonEvents = buttonEvents
 
-    extraGears = []
-    if not (self.CS.CP.openpilotLongitudinalControl or self.CS.CP.enableGasInterceptor):
-      extraGears = [car.CarState.GearShifter.sport, car.CarState.GearShifter.low]
-
     # events
-    events = self.create_common_events(ret, extra_gears=extraGears, pcm_enable=False)
+    events = self.create_common_events(ret, pcm_enable=False)
+    if self.CS.brake_error:
+      events.add(EventName.brakeUnavailable)
 
-
-    if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed and not self.CS.madsEnabled:
+    if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed:
       events.add(EventName.belowEngageSpeed)
 
-    #if self.CP.pcmCruise:
-    #  # we engage when pcm is active (rising edge)
-    #  if ret.cruiseState.enabled and not self.CS.out.cruiseState.enabled:
-    #    events.add(EventName.pcmEnable)
-    #  elif not ret.cruiseState.enabled and (c.actuators.accel >= 0. or not self.CP.openpilotLongitudinalControl):
-    #    # it can happen that car cruise disables while comma system is enabled: need to
-    #    # keep braking if needed or if the speed is very low
-    #    if ret.vEgo < self.CP.minEnableSpeed + 2.:
-    #      # non loud alert if cruise disables below 25mph as expected (+ a little margin)
-    #      events.add(EventName.speedTooLow)
-    #    else:
-    #      events.add(EventName.cruiseDisabled)
+    if self.CP.pcmCruise:
+      # we engage when pcm is active (rising edge)
+      if ret.cruiseState.enabled and not self.CS.out.cruiseState.enabled:
+        events.add(EventName.pcmEnable)
+      elif not ret.cruiseState.enabled and (c.actuators.accel >= 0. or not self.CP.openpilotLongitudinalControl):
+        # it can happen that car cruise disables while comma system is enabled: need to
+        # keep braking if needed or if the speed is very low
+        if ret.vEgo < self.CP.minEnableSpeed + 2.:
+          # non loud alert if cruise disables below 25mph as expected (+ a little margin)
+          events.add(EventName.speedTooLow)
+        else:
+          events.add(EventName.cruiseDisabled)
     if self.CS.CP.minEnableSpeed > 0 and ret.vEgo < 0.001:
       events.add(EventName.manualRestart)
 
-    enable_pressed = False
-    
     # handle button presses
-    for b in ret.buttonEvents:
-      # do enable on both accel and decel buttons
-      if b.type in (ButtonType.accelCruise, ButtonType.decelCruise, ButtonType.setCruise) and not b.pressed:
-        enable_pressed = True
-      # do disable on MADS button if ACC is disabled
-      if b.type == ButtonType.altButton1 and b.pressed:
-        if not self.CS.madsEnabled: # disabled MADS
-          if not ret.cruiseState.enabled:
-            events.add(EventName.buttonCancel)
-        else: # enabled MADS
-          if not ret.cruiseState.enabled:
-            enable_pressed = True
-      # do disable on button down
-      if b.type == ButtonType.cancel and b.pressed:
-        events.add(EventName.buttonCancel)
-    
-    if not (ret.cruiseState.enabled or self.CS.madsEnabled):
-      events.add(EventName.buttonCancel)
-    
-    if (ret.cruiseState.enabled or self.CS.madsEnabled) and enable_pressed:
-      events.add(EventName.buttonEnable)
+    events.events.extend(create_button_enable_events(ret.buttonEvents, self.CP.pcmCruise))
 
-    self.CP.latActive = True if self.CC.lat_active else False
+    for b in ret.buttonEvents:
+      # check to see if LKAS button is pressed and acc is not enabled
+      # we will enable openpilot to allow LKAS without ACC
+      if b.type == ButtonType.altButton1 and b.pressed:
+        if ret.lkasEnabled and not ret.cruiseState.enabled:
+          events.add(EventName.buttonEnable)
+        if not ret.lkasEnabled and not ret.cruiseState.enabled:
+          events.add(EventName.buttonCancel)
+
 
     ret.events = events.to_msg()
 
     return ret
+
 
   # pass in a car.CarControl
   # to be called @ 100hz

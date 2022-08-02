@@ -77,7 +77,6 @@ class CarInterfaceBase(ABC):
     self.CC = None
     if CarController is not None:
       self.CC = CarController(self.cp.dbc_name, CP, self.VM)
-    self.madsEnabled = False
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
@@ -199,11 +198,16 @@ class CarInterfaceBase(ABC):
     if cs_out.cruiseState.nonAdaptive:
       events.add(EventName.wrongCruiseMode)
     if cs_out.brakeHoldActive and self.CP.openpilotLongitudinalControl:
+      cs_out.disengagedByBrake = True
       events.add(EventName.brakeHold)
     if cs_out.parkingBrake:
       events.add(EventName.parkBrake)
     if cs_out.accFaulted:
       events.add(EventName.accFaulted)
+    if cs_out.brakePressed:
+      if cs_out.lkasEnabled:
+        cs_out.disengagedByBrake = True
+      events.add(EventName.buttonCancel)
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1
@@ -226,6 +230,11 @@ class CarInterfaceBase(ABC):
         events.add(EventName.pcmEnable)
       elif not cs_out.cruiseState.enabled:
         events.add(EventName.pcmDisable)
+
+    if cs_out.disengagedByBrake and not cs_out.brakePressed \
+          and not cs_out.brakeHoldActive and not cs_out.parkingBrake and cs_out.lkasEnabled and allow_enable:
+      events.add(EventName.buttonEnable)
+      cs_out.disengagedByBrake = False
 
     return events
 
@@ -256,6 +265,9 @@ class CarStateBase(ABC):
     self.right_blinker_cnt = 0
     self.left_blinker_prev = False
     self.right_blinker_prev = False
+    self.lkasEnabled = False
+    self.accEnabled = False
+    self.prev_brake_pressed = False
 
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
     # R = 1e3

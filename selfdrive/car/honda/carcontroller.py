@@ -158,7 +158,7 @@ class CarController:
     # Send steering command.
     idx = self.frame % 4
     can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
-                                                        idx, CS.CP.openpilotLongitudinalControl))
+                                                          idx, CS.CP.openpilotLongitudinalControl))
 
     # wind brake from air resistance decel at high speed
     wind_brake = interp(CS.out.vEgo, [0.0, 2.3, 35.0], [0.001, 0.002, 0.15])
@@ -242,7 +242,7 @@ class CarController:
     if self.frame % 10 == 0:
       idx = (self.frame // 10) % 4
       hud = HUDData(int(pcm_accel), int(round(hud_v_cruise)), hud_control.leadVisible,
-                    hud_control.lanesVisible, fcw_display, acc_alert, steer_required, CS.madsEnabled and not CC.latActive)
+                    hud_control.lanesVisible, fcw_display, acc_alert, steer_required, CS.lkasEnabled and not CC.latActive)
       can_sends.extend(hondacan.create_ui_commands(self.packer, self.CP, CC.enabled and CS.out.cruiseState.enabled, CC.latActive, pcm_speed, hud, CS.is_metric, idx, CS.stock_hud))
       if self.CP.openpilotLongitudinalControl and self.CP.carFingerprint not in HONDA_BOSCH:
         self.speed = pcm_speed

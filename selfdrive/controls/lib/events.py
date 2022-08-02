@@ -613,7 +613,6 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
     ET.NO_ENTRY: NoEntryAlert("Pedal Pressed",
                               visual_alert=VisualAlert.brakePressed),
   },
-
   EventName.pedalPressedPreEnable: {
     ET.PRE_ENABLE: Alert(
       "Release Pedal to Engage",
