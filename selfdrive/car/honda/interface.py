@@ -385,7 +385,7 @@ class CarInterface(CarInterfaceBase):
       if b.type == ButtonType.altButton1 and b.pressed:
         if ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonEnable)
-        if not ret.lkasEnabled and not re.cruiseState.enabled:
+        if not ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonCancel)
 
     ret.events = events.to_msg()
