@@ -342,6 +342,8 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c):
     ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
 
+    ret.disengagedByBrake = ret.disengagedByBrake or self.CS.out.disengagedByBrake
+
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:

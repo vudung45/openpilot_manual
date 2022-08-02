@@ -155,7 +155,7 @@ class CarState(CarStateBase):
 
   def update(self, cp, cp_cam, cp_body):
     ret = car.CarState.new_message()
-
+    
     # car params
     v_weight_v = [0., 1.]  # don't trust smooth speed at low values to avoid premature zero snapping
     v_weight_bp = [1., 6.]   # smooth blending, below ~0.6m/s the smooth speed snaps to zero
