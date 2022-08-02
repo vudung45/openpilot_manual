@@ -151,6 +151,7 @@ class CarState(CarStateBase):
     self.v_cruise_pcm_prev = 0
     self.lkasEnabled = False
     self.accEnabled = False
+    self.prev_brake_pressed = False
 
   def update(self, cp, cp_cam, cp_body):
     ret = car.CarState.new_message()
@@ -296,7 +297,9 @@ class CarState(CarStateBase):
 
     if ret.brakePressed:
       self.accEnabled = False
+      self.lkasEnabled = False
 
+    self.prev_brake_pressed = ret.brakePressed
     ret.cruiseState.enabled = self.accEnabled
 
     if self.lkasEnabled:
