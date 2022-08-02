@@ -198,12 +198,15 @@ class CarInterfaceBase(ABC):
     if cs_out.cruiseState.nonAdaptive:
       events.add(EventName.wrongCruiseMode)
     if cs_out.brakeHoldActive and self.CP.openpilotLongitudinalControl:
+      cs_out.disengagedByBrake = True
       events.add(EventName.brakeHold)
     if cs_out.parkingBrake:
       events.add(EventName.parkBrake)
     if cs_out.accFaulted:
       events.add(EventName.accFaulted)
     if cs_out.brakePressed:
+      if cs_out.lkasEnabled:
+        cs_out.disengagedByBrake = True
       events.add(EventName.buttonCancel)
 
     # Handle permanent and temporary steering faults
@@ -227,6 +230,10 @@ class CarInterfaceBase(ABC):
         events.add(EventName.pcmEnable)
       elif not cs_out.cruiseState.enabled:
         events.add(EventName.pcmDisable)
+
+    if cs_out.disengagedByBrake and not cs_out.brakePressed and not cs_out.brakeHoldActive:
+      events.add(EventName.buttonEnable)
+      cs_out.disengagedByBrake = False
 
     return events
 

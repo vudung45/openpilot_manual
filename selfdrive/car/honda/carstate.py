@@ -297,7 +297,6 @@ class CarState(CarStateBase):
 
     if ret.brakePressed:
       self.accEnabled = False
-      self.lkasEnabled = False
 
     self.prev_brake_pressed = ret.brakePressed
     ret.cruiseState.enabled = self.accEnabled

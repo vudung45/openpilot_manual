@@ -201,7 +201,7 @@ struct CarState {
   clutchPressed @28 :Bool;
 
   lkasEnabled @44 :Bool;
-  latActive @45 :Bool;
+  disengagedByBrake @45 :Bool;
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
 
