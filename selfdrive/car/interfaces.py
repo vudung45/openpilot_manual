@@ -77,7 +77,6 @@ class CarInterfaceBase(ABC):
     self.CC = None
     if CarController is not None:
       self.CC = CarController(self.cp.dbc_name, CP, self.VM)
-    self.lkasEnabled = False
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):

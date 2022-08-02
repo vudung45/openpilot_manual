@@ -332,7 +332,6 @@ class CarInterface(CarInterfaceBase):
 
     ret.steerActuatorDelay = 0.1
     ret.steerLimitTimer = 0.8
-    ret.latActive = False
     return ret
 
   @staticmethod
@@ -388,8 +387,6 @@ class CarInterface(CarInterfaceBase):
           events.add(EventName.buttonEnable)
         if not ret.lkasEnabled and not re.cruiseState.enabled:
           events.add(EventName.buttonCancel)
-
-    self.CP.latActive = True if self.CC.lat_active else False
 
     ret.events = events.to_msg()
 
