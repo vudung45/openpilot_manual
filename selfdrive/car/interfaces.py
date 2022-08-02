@@ -265,6 +265,9 @@ class CarStateBase(ABC):
     self.right_blinker_cnt = 0
     self.left_blinker_prev = False
     self.right_blinker_prev = False
+    self.lkasEnabled = False
+    self.accEnabled = False
+    self.prev_brake_pressed = False
 
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
     # R = 1e3
