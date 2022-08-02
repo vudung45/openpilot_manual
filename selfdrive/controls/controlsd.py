@@ -462,7 +462,7 @@ class Controls:
     else:
       if CS.cruiseState.available:  
         self.v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
-        self.v_cruise_cluster_kph  = CS.cruiseState.speedCluster * CV.MS_TO_KPH
+        # self.v_cruise_cluster_kph  = CS.cruiseState.speedCluster * CV.MS_TO_KPH
       else:
         self.v_cruise_kph = 0
         self.v_cruise_cluster_kph = 0
