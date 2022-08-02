@@ -212,9 +212,8 @@ class CarController:
           if not CS.out.cruiseState.enabled:
             self.gas = 0.
           stopping = actuators.longControlState == LongCtrlState.stopping
-          if CC.longActive and cc.enabled:
-            can_sends.extend(hondacan.create_acc_commands(self.packer, CC.enabled, CC.longActive, self.accel, self.gas,
-                                                          idx, stopping, self.CP.carFingerprint))
+          can_sends.extend(hondacan.create_acc_commands(self.packer, CC.enabled, CC.longActive, self.accel, self.gas,
+                                                        idx, stopping, self.CP.carFingerprint))
         else:
           apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
           apply_brake = int(clip(apply_brake * self.params.NIDEC_BRAKE_MAX, 0, self.params.NIDEC_BRAKE_MAX - 1))
