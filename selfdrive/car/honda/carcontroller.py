@@ -157,8 +157,9 @@ class CarController:
 
     # Send steering command.
     idx = self.frame % 4
-    can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
-                                                        idx, CS.CP.openpilotLongitudinalControl))
+    if CC.latActive:
+      can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
+                                                          idx, CS.CP.openpilotLongitudinalControl))
 
     # wind brake from air resistance decel at high speed
     wind_brake = interp(CS.out.vEgo, [0.0, 2.3, 35.0], [0.001, 0.002, 0.15])
@@ -211,8 +212,9 @@ class CarController:
           if not CS.out.cruiseState.enabled:
             self.gas = 0.
           stopping = actuators.longControlState == LongCtrlState.stopping
-          can_sends.extend(hondacan.create_acc_commands(self.packer, CC.enabled, CC.longActive, self.accel, self.gas,
-                                                        idx, stopping, self.CP.carFingerprint))
+          if CC.longActive and cc.enabled:
+            can_sends.extend(hondacan.create_acc_commands(self.packer, CC.enabled, CC.longActive, self.accel, self.gas,
+                                                          idx, stopping, self.CP.carFingerprint))
         else:
           apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
           apply_brake = int(clip(apply_brake * self.params.NIDEC_BRAKE_MAX, 0, self.params.NIDEC_BRAKE_MAX - 1))

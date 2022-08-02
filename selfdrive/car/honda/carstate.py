@@ -281,6 +281,11 @@ class CarState(CarStateBase):
         self.accEnabled = True
         self.lkasEnabled = True
 
+      if self.prev_cruise_buttons != 2:  # CANCEL
+        if self.cruise_buttons == 2:
+          self.accEnabled = False
+          self.madsEnabled = False
+
       # allow toggling LKAS independently from ACC
       if (self.prev_cruise_setting != 1 and self.cruise_setting == 1) \
       or (self.prev_cruise_buttons != 1 and self.cruise_buttons == 1):
