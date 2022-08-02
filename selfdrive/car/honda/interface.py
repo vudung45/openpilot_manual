@@ -342,7 +342,6 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c):
     ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
 
-    ret.lkasEnabled = self.CS.lkasEnabled
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
@@ -388,7 +387,7 @@ class CarInterface(CarInterfaceBase):
         if not ret.lkasEnabled and not ret.cruiseState.enabled:
           events.add(EventName.buttonCancel)
 
-    if not self.CS.prev_brake_pressed and ret.brakePressed:
+    if ret.brakePressed:
       events.add(EventName.buttonCancel)
 
     ret.events = events.to_msg()

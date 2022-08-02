@@ -607,6 +607,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
     ET.NO_ENTRY: NoEntryAlert("Parking Brake Engaged"),
   },
+
   EventName.pedalPressed: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
     ET.NO_ENTRY: NoEntryAlert("Pedal Pressed",
