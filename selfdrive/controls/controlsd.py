@@ -570,7 +570,7 @@ class Controls:
 
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
-    soft_disable_lkas_on_low_speed_blinker = not ((CS.leftBlinker or cs.rightBlinker) and CS.vEgo < LDW_MIN_SPEED)
+    soft_disable_lkas_on_low_speed_blinker = not ((CS.leftBlinker or CS.rightBlinker) and CS.vEgo < LDW_MIN_SPEED)
     # Check which actuators can be enabled
     CC.latActive = self.active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
                      CS.vEgo > self.CP.minSteerSpeed and not CS.standstill and CS.lkasEnabled and \
