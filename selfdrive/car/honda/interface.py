@@ -237,7 +237,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpBP = [0., 5., 10, 20., 35.]
       ret.longitudinalTuning.kpV = [1.6, 1.4, 1.3, 0.9, 0.8]
       ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
-      ret.longitudinalTuning.kiV = [0.6, 0.5, 0.4, 0.2, .18]
+      ret.longitudinalTuning.kiV = [.8, .7, .6, .4, .3]
       ret.longitudinalActuatorDelayUpperBound = 1.0
 
     elif candidate == CAR.ODYSSEY:
