@@ -7,7 +7,7 @@ from common.realtime import DT_CTRL
 from opendbc.can.packer import CANPacker
 from selfdrive.car import create_gas_interceptor_command
 from selfdrive.car.honda import hondacan
-from selfdrive.car.honda.values import CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_RADARLESS, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
+from selfdrive.car.honda.values import CAR, CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_RADARLESS, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
 from selfdrive.controls.lib.drive_helpers import rate_limit
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -98,6 +98,8 @@ HUDData = namedtuple("HUDData",
                      ["pcm_accel", "v_cruise", "lead_visible",
                       "lanes_visible", "fcw", "acc_alert", "steer_required", "dashed_lanes"])
 
+ACURA_RDX_3G_MIN_STEER = 45 * CV.MPH_TO_MS
+
 
 class CarController:
   def __init__(self, dbc_name, CP, VM):
@@ -150,15 +152,17 @@ class CarController:
     # Send CAN commands
     can_sends = []
 
+    radar_disabed = (self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl) or \
+    (self.CP.carFingerprint == CAR.ACURA_RDX_3G and CS.out.vEgo < ACURA_RDX_3G_MIN_STEER)
     # tester present - w/ no response (keeps radar disabled)
-    if self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl:
+    if radar_disabled:
       if self.frame % 10 == 0:
         can_sends.append((0x18DAB0F1, 0, b"\x02\x3E\x80\x00\x00\x00\x00\x00", 1))
 
     # Send steering command.
     idx = self.frame % 4
     can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, CC.latActive, self.CP.carFingerprint,
-                                                          idx, CS.CP.openpilotLongitudinalControl))
+                                                          idx, radar_disabled))
 
     # wind brake from air resistance decel at high speed
     wind_brake = interp(CS.out.vEgo, [0.0, 2.3, 35.0], [0.001, 0.002, 0.15])
