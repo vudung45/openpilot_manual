@@ -576,7 +576,7 @@ class Controls:
                      CS.vEgo > self.CP.minSteerSpeed and not CS.standstill and CS.lkasEnabled and \
                      not CS.brakePressed and not self.events.any(ET.NO_ENTRY) and \
                      not soft_disable_lkas_on_low_speed_blinker
-    CC.longActive = self.active and CS.cruiseState.enabled and not CS.brakePressed and not self.events.any(ET.OVERRIDE) and self.CP.openpilotLongitudinalControl
+    CC.longActive = self.active and CS.cruiseState.enabled and not CS.brakePressed and not self.events.any(ET.OVERRIDE)
 
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state

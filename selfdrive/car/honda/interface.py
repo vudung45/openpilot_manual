@@ -360,7 +360,7 @@ class CarInterface(CarInterfaceBase):
     if self.CS.brake_error:
       events.add(EventName.brakeUnavailable)
 
-    if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed:
+    if self.CP.pcmCruise and ret.vEgo < self.CP.minEnableSpeed and not ret.lkasEnabled:
       events.add(EventName.belowEngageSpeed)
 
     if self.CP.pcmCruise:
@@ -375,6 +375,7 @@ class CarInterface(CarInterfaceBase):
           events.add(EventName.speedTooLow)
         else:
           events.add(EventName.cruiseDisabled)
+          
     if self.CS.CP.minEnableSpeed > 0 and ret.vEgo < 0.001:
       events.add(EventName.manualRestart)
 
