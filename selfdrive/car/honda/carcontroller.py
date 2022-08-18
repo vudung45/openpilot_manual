@@ -152,7 +152,7 @@ class CarController:
     # Send CAN commands
     can_sends = []
 
-    radar_disabed = (self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl) or \
+    radar_disabled = (self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl) or \
     (self.CP.carFingerprint == CAR.ACURA_RDX_3G and CS.out.vEgo < ACURA_RDX_3G_MIN_STEER and apply_steer != 0 and CC.latActive)
     # tester present - w/ no response (keeps radar disabled)
     if radar_disabled:
