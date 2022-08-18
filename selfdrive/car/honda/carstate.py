@@ -301,7 +301,9 @@ class CarState(CarStateBase):
       ret.disengagedByBrake = True
 
     self.prev_brake_pressed = ret.brakePressed
-    ret.cruiseState.enabled = self.accEnabled
+    if self.CP.openpilotLongitudinalControl:
+      ret.cruiseState.enabled = self.accEnabled
+      
     ret.lkasEnabled = self.lkasEnabled
 
     if self.lkasEnabled:
