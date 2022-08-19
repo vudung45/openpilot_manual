@@ -151,9 +151,13 @@ class CarController:
     can_sends = []
 
     # tester present - w/ no response (keeps radar disabled)
-    if self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl:
+    radar_disabled = (self.CP.carFingerprint in HONDA_BOSCH and self.CP.openpilotLongitudinalControl) or \
+    (self.CP.carFingerprint == CAR.ACURA_RDX_3G and CS.out.vEgo < ACURA_RDX_3G_MIN_STEER and apply_steer != 0 and CC.latActive)
+    # tester present - w/ no response (keeps radar disabled)
+    if radar_disabled:
       if self.frame % 10 == 0:
         can_sends.append((0x18DAB0F1, 0, b"\x02\x3E\x80\x00\x00\x00\x00\x00", 1))
+
 
     # Send steering command.
     idx = self.frame % 4
