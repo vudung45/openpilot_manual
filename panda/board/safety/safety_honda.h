@@ -138,21 +138,21 @@ static int honda_rx_hook(CANPacket_t *to_push) {
     }
 
     // enter controls when PCM enters cruise state
-    if (pcm_cruise && (addr == 0x17C)) {
-      const bool cruise_engaged = GET_BIT(to_push, 38U) != 0U;
-      // engage on rising edge
-      if (cruise_engaged && !cruise_engaged_prev) {
-        controls_allowed = 1;
-      }
+    // if (pcm_cruise && (addr == 0x17C)) {
+    //   const bool cruise_engaged = GET_BIT(to_push, 38U) != 0U;
+    //   // engage on rising edge
+    //   if (cruise_engaged && !cruise_engaged_prev) {
+    //     controls_allowed = 1;
+    //   }
 
-      // Since some Nidec cars can brake down to 0 after the PCM disengages,
-      // we don't disengage when the PCM does.
-      if (!cruise_engaged && (honda_hw != HONDA_NIDEC)) {
-        controls_allowed = 0;
-        disengageFromBrake = false;
-      }
-      cruise_engaged_prev = cruise_engaged;
-    }
+    //   // Since some Nidec cars can brake down to 0 after the PCM disengages,
+    //   // we don't disengage when the PCM does.
+    //   if (!cruise_engaged && (honda_hw != HONDA_NIDEC)) {
+    //     controls_allowed = 0;
+    //     disengageFromBrake = false;
+    //   }
+    //   cruise_engaged_prev = cruise_engaged;
+    // }
 
     // state machine to enter and exit controls for button enabling
     // 0x1A6 for the ILX, 0x296 for the Civic Touring
