@@ -487,7 +487,7 @@ class Controls:
       else:
         # ENABLED
         if self.state == State.enabled:
-          if (not self.CP.pcmCruise or (self.CP.pcmCruise and not self.CP.pcmCruiseSpeed)) and CS.cruiseState.enabled and (not self.cruiseState_enabled_last):
+          if not self.CP.pcmCruise and CS.cruiseState.enabled and (not self.cruiseState_enabled_last):
             self.v_cruise_kph = initialize_v_cruise(CS.vEgo, CS.buttonEvents, self.v_cruise_kph_last)
           if self.events.any(ET.SOFT_DISABLE):
             self.state = State.softDisabling
