@@ -274,7 +274,7 @@ class CarState(CarStateBase):
       ret.stockAeb = bool(cp_cam.vl["BRAKE_COMMAND"]["AEB_REQ_1"] and cp_cam.vl["BRAKE_COMMAND"]["COMPUTER_BRAKE"] > 1e-5)
     
     if ret.cruiseState.available:
-      if not self.CP.pcmCruise or not self.CP.pcmCruiseSpeed:
+      if not self.CP.pcmCruise:
         # Enable both LKAS and ACC if SET- or SET+ is pressed
         if self.prev_cruise_buttons == 3 and self.cruise_buttons != 3:  # SET-
           self.accEnabled = True
@@ -292,7 +292,7 @@ class CarState(CarStateBase):
       self.lkasEnabled = False
 
     # Handle disengage
-    if not self.CP.pcmCruise or not self.CP.pcmCruiseSpeed:
+    if not self.CP.pcmCruise or not self.lkasEnabled or (self.CP.pcmCruise and self.CP.minEnableSpeed > 0):
       if self.prev_cruise_buttons != 2:  # CANCEL
         if self.cruise_buttons == 2:
           self.accEnabled = False
@@ -303,13 +303,13 @@ class CarState(CarStateBase):
         self.accEnabled = False
         ret.disengagedByBrake = True
 
-    if self.CP.pcmCruise and self.CP.minEnableSpeed > 0 and self.CP.pcmCruiseSpeed:
+    if self.CP.pcmCruise and self.CP.minEnableSpeed > 0:
       if ret.gasPressed and not ret.cruiseState.enabled:
         self.accEnabled = False
       self.accEnabled = ret.cruiseState.enabled or self.accEnabled
 
     
-    if self.CP.pcmCruise and self.CP.minEnableSpeed > 0 and self.CP.pcmCruiseSpeed:
+    if not self.CP.pcmCruise:
       ret.cruiseState.enabled = self.accEnabled
 
     ret.lkasEnabled = self.lkasEnabled
