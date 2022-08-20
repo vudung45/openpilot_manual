@@ -295,6 +295,7 @@ class CarState(CarStateBase):
     if self.prev_cruise_buttons != 2:  # CANCEL
       if self.cruise_buttons == 2:
         self.accEnabled = False
+        self.lkasEnabled = False
         ret.disengagedByBrake = False
 
     if ret.brakePressed:
