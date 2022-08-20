@@ -292,16 +292,14 @@ class CarState(CarStateBase):
       self.lkasEnabled = False
 
     # Handle disengage
-    if not self.CP.pcmCruise or not self.lkasEnabled or (self.CP.pcmCruise and self.CP.minEnableSpeed > 0):
-      if self.prev_cruise_buttons != 2:  # CANCEL
-        if self.cruise_buttons == 2:
-          self.accEnabled = False
-          self.lkasEnabled = False
-          ret.disengagedByBrake = False
-
-      if ret.brakePressed:
+    if self.prev_cruise_buttons != 2:  # CANCEL
+      if self.cruise_buttons == 2:
         self.accEnabled = False
-        ret.disengagedByBrake = True
+        ret.disengagedByBrake = False
+
+    if ret.brakePressed:
+      self.accEnabled = False
+      ret.disengagedByBrake = True
 
     if self.CP.pcmCruise and self.CP.minEnableSpeed > 0:
       if ret.gasPressed and not ret.cruiseState.enabled:
