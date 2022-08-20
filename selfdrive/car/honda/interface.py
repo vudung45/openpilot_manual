@@ -367,7 +367,7 @@ class CarInterface(CarInterfaceBase):
       # we engage when pcm is active (rising edge)
       if ret.cruiseState.enabled and not self.CS.out.cruiseState.enabled:
         events.add(EventName.pcmEnable)
-      elif not ret.cruiseState.enabled and (c.actuators.accel >= 0. or not self.CP.openpilotLongitudinalControl):
+      elif not ret.cruiseState.enabled and (c.actuators.accel >= 0. or not self.CP.openpilotLongitudinalControl) and not ret.lkasEnabled:
         # it can happen that car cruise disables while comma system is enabled: need to
         # keep braking if needed or if the speed is very low
         if ret.vEgo < self.CP.minEnableSpeed + 2.:
